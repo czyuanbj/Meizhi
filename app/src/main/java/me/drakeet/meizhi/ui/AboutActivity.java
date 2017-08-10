@@ -31,7 +31,7 @@ import com.umeng.analytics.MobclickAgent;
 import me.drakeet.meizhi.BuildConfig;
 import me.drakeet.meizhi.R;
 import me.drakeet.meizhi.ui.base.BaseActivity;
-import me.drakeet.meizhi.util.ShareUtils;
+import me.drakeet.meizhi.util.Shares;
 
 /**
  * Created by drakeet on 15/8/15.
@@ -39,7 +39,7 @@ import me.drakeet.meizhi.util.ShareUtils;
 public class AboutActivity extends BaseActivity {
 
     @Bind(R.id.toolbar) Toolbar mToolbar;
-    @Bind(R.id.tv_version) TextView mVersionTextView;
+    @Bind(R.id.version) TextView mVersionTextView;
     @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbarLayout;
 
 
@@ -73,7 +73,7 @@ public class AboutActivity extends BaseActivity {
                 this.finish();
                 return true;
             case R.id.menu_share:
-                ShareUtils.share(this);
+                Shares.share(this, R.string.share_text);
                 return true;
         }
         return super.onOptionsItemSelected(item);

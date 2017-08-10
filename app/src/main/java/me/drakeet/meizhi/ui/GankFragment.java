@@ -36,10 +36,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.bumptech.glide.Glide;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.squareup.otto.Subscribe;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,16 +44,21 @@ import me.drakeet.meizhi.DrakeetFactory;
 import me.drakeet.meizhi.LoveBus;
 import me.drakeet.meizhi.R;
 import me.drakeet.meizhi.data.GankData;
-import me.drakeet.meizhi.event.OnKeyBackClickEvent;
 import me.drakeet.meizhi.data.entity.Gank;
+import me.drakeet.meizhi.event.OnKeyBackClickEvent;
 import me.drakeet.meizhi.ui.adapter.GankListAdapter;
 import me.drakeet.meizhi.ui.base.BaseActivity;
-import me.drakeet.meizhi.util.LoveStringUtils;
+import me.drakeet.meizhi.util.LoveStrings;
 import me.drakeet.meizhi.util.Once;
-import me.drakeet.meizhi.util.ShareUtils;
-import me.drakeet.meizhi.util.ToastUtils;
+import me.drakeet.meizhi.util.Shares;
+import me.drakeet.meizhi.util.Toasts;
 import me.drakeet.meizhi.widget.LoveVideoView;
 import me.drakeet.meizhi.widget.VideoImageView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -71,10 +72,10 @@ public class GankFragment extends Fragment {
     private static final String ARG_MONTH = "month";
     private static final String ARG_DAY = "day";
 
-    @Bind(R.id.rv_gank) RecyclerView mRecyclerView;
+    @Bind(R.id.list) RecyclerView mRecyclerView;
     @Bind(R.id.stub_empty_view) ViewStub mEmptyViewStub;
     @Bind(R.id.stub_video_view) ViewStub mVideoViewStub;
-    @Bind(R.id.iv_video) VideoImageView mVideoImageView;
+    @Bind(R.id.video_image) VideoImageView mVideoImageView;
     LoveVideoView mVideoView;
 
     int mYear, mMonth, mDay;
@@ -181,14 +182,14 @@ public class GankFragment extends Fragment {
         String url = "http://gank.io/" + String.format("%s/%s/%s", mYear, mMonth, mDay);
         Request request = new Request.Builder().url(url).build();
         client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(Request request, IOException e) {
+            @Override public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
             }
 
 
-            @Override public void onResponse(Response response) throws IOException {
+            @Override public void onResponse(Call call, Response response) throws IOException {
                 String body = response.body().string();
-                mVideoPreviewUrl = LoveStringUtils.getVideoPreviewImageUrl(body);
+                mVideoPreviewUrl = LoveStrings.getVideoPreviewImageUrl(body);
                 startPreview(mVideoPreviewUrl);
             }
         });
@@ -226,9 +227,8 @@ public class GankFragment extends Fragment {
         resumeVideoView();
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         if (mGankList.size() > 0 && mGankList.get(0).type.equals("休息视频")) {
-            ToastUtils.showLongX2(R.string.loading);
-        }
-        else {
+            Toasts.showLongX2(R.string.loading);
+        } else {
             closePlayer();
         }
     }
@@ -239,8 +239,7 @@ public class GankFragment extends Fragment {
             case Configuration.ORIENTATION_LANDSCAPE: {
                 if (mIsVideoViewInflated) {
                     mVideoViewStub.setVisibility(View.VISIBLE);
-                }
-                else {
+                } else {
                     mVideoView = (LoveVideoView) mVideoViewStub.inflate();
                     mIsVideoViewInflated = true;
                     String tip = getString(R.string.tip_video_play);
@@ -268,7 +267,7 @@ public class GankFragment extends Fragment {
 
     void closePlayer() {
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        ToastUtils.showShort(getString(R.string.tip_for_no_gank));
+        Toasts.showShort(getString(R.string.tip_for_no_gank));
     }
 
 
@@ -279,10 +278,8 @@ public class GankFragment extends Fragment {
 
 
     @Subscribe public void onKeyBackClick(OnKeyBackClickEvent event) {
-        if (getResources().getConfiguration().orientation ==
-                Configuration.ORIENTATION_LANDSCAPE) {
-            getActivity().setRequestedOrientation(
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
         clearVideoView();
     }
@@ -296,10 +293,9 @@ public class GankFragment extends Fragment {
                     Gank gank = mGankList.get(0);
                     String shareText = gank.desc + gank.url +
                             getString(R.string.share_from);
-                    ShareUtils.share(getActivity(), shareText);
-                }
-                else {
-                    ShareUtils.share(getActivity());
+                    Shares.share(getActivity(), shareText);
+                } else {
+                    Shares.share(getContext(), R.string.share_text);
                 }
                 return true;
             case R.id.action_subject:
@@ -348,7 +344,6 @@ public class GankFragment extends Fragment {
 
 
     private void pauseVideoView() {
-        // oh, my egg
         if (mVideoView != null) {
             mVideoView.onPause();
             mVideoView.pauseTimers();
@@ -357,7 +352,6 @@ public class GankFragment extends Fragment {
 
 
     private void resumeVideoView() {
-        // egg pain
         if (mVideoView != null) {
             mVideoView.resumeTimers();
             mVideoView.onResume();

@@ -35,7 +35,7 @@ import butterknife.OnClick;
 import me.drakeet.meizhi.R;
 import me.drakeet.meizhi.data.entity.Gank;
 import me.drakeet.meizhi.ui.WebActivity;
-import me.drakeet.meizhi.util.StringStyleUtils;
+import me.drakeet.meizhi.util.StringStyles;
 
 /**
  * Created by drakeet on 8/11/15.
@@ -74,7 +74,7 @@ public class GankListAdapter extends AnimRecyclerViewAdapter<GankListAdapter.Vie
         }
         holder.category.setText(gank.type);
         SpannableStringBuilder builder = new SpannableStringBuilder(gank.desc).append(
-                StringStyleUtils.format(holder.gank.getContext(), " (via. " +
+                StringStyles.format(holder.gank.getContext(), " (via. " +
                         gank.who +
                         ")", R.style.ViaTextAppearance));
         CharSequence gankText = builder.subSequence(0, builder.length());
@@ -109,8 +109,8 @@ public class GankListAdapter extends AnimRecyclerViewAdapter<GankListAdapter.Vie
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.tv_category) TextView category;
-        @Bind(R.id.tv_title) TextView gank;
+        @Bind(R.id.category) TextView category;
+        @Bind(R.id.title) TextView gank;
 
 
         public ViewHolder(View itemView) {
@@ -119,7 +119,7 @@ public class GankListAdapter extends AnimRecyclerViewAdapter<GankListAdapter.Vie
         }
 
 
-        @OnClick(R.id.ll_gank_parent) void onGank(View v) {
+        @OnClick(R.id.gank_layout) void onGank(View v) {
             Gank gank = mGankList.get(getLayoutPosition());
             Intent intent = WebActivity.newIntent(v.getContext(), gank.url, gank.desc);
             v.getContext().startActivity(intent);
